@@ -57,6 +57,39 @@ To install dependencies, run:
 bun install
 ```
 
+## Contained CLI launchers
+
+`bun run pack:contained` builds `ClaudeCode.Contained.2.1.0.nupkg` and
+`CopilotCli.Contained.2.1.0.nupkg` under `.artifacts/nuget`. The .NET 8 launchers
+live in `claudecode-shim` and `copilot-shim`; their packaging projects live in
+`claudecode-nuget` and `copilotcli-nuget`. Neither package redistributes the vendor CLI.
+Building the packages requires the .NET 8 SDK. `bun test` includes Linux launcher
+lifecycle tests when running on Linux; the API tests remain platform independent.
+
+Supply `COPILOT_GITHUB_TOKEN` at runtime. The credential must support the selected
+CLI or proxy; it is never embedded in the package or passed in process arguments.
+
+The worker host owns CLI version selection. After preparation, it passes the
+verified absolute executable path and exact version in environment variables;
+the NuGet packages have no CLI version pin or PATH-based fallback. Both shims
+verify that the prepared executable reports the host-selected version.
+
+`claudecode-contained` requires Node.js 22, `ANTHROPIC_MODEL` set to an available
+Copilot model ID, `CLAUDE_CODE_PATH` pointing to the officially installed binary,
+and `CLAUDE_CODE_VERSION` identifying its version. The current host prepares
+**2.1.302** under `/ws/tools/claudecode/2.1.302`. It starts an authenticated,
+loopback-only proxy on a random
+port, configures Claude's environment, and stops the proxy when Claude exits.
+`COPILOT_ACCOUNT_TYPE` may be `individual` (default), `business`, or `enterprise`.
+
+`copilot-contained` requires `COPILOT_CLI_PATH` pointing to the officially prepared
+Copilot executable and `COPILOT_CLI_VERSION` identifying its version. The current
+host installs official npm package `@github/copilot@1.0.105` under
+`/ws/tools/copilotcli/1.0.105` during preparation. It bootstraps token environment variables and launches Copilot
+directly without a proxy. Both launchers forward arguments and exit codes, clean
+up their children on shutdown, and allow `--help`/`--version` without credentials.
+They do not change CLI permission or trust settings.
+
 ## Using with Docker
 
 Build image

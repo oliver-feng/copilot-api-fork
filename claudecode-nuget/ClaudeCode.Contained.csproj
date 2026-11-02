@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <AssemblyName>claudecode-contained-launcher</AssemblyName>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>claudecode-contained</ToolCommandName>
+    <PackageId>ClaudeCode.Contained</PackageId>
+    <Version>2.1.0</Version>
+    <Description>Claude Code launcher with a private GitHub Copilot API proxy. Requires Node.js 22 and a host-prepared Claude installation; does not redistribute Claude Code.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\claudecode-shim\*.cs;..\copilot-shim\ContainedProcess.cs" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+    <Content Include="payload\proxy.mjs" CopyToOutputDirectory="PreserveNewest" Pack="false" />
+    <Content Include="..\node_modules\**\LICENSE*;..\node_modules\**\LICENCE*;..\node_modules\**\COPYING*;..\node_modules\**\NOTICE*"
+             Pack="true" PackagePath="tools\net8.0\any\licenses\" />
+  </ItemGroup>
+  <Target Name="RequireProxyPayload" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('payload\proxy.mjs')" Text="Build the proxy payload first: bun run build:contained" />
+  </Target>
+</Project>

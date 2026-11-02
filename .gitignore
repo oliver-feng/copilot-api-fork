@@ -12,3 +12,7 @@ node_modules/
 
 # build output
 dist/
+.artifacts/
+**/bin/
+**/obj/
+claudecode-nuget/payload/

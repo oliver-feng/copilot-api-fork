@@ -23,11 +23,13 @@
   ],
   "scripts": {
     "build": "tsdown",
+    "build:contained": "bun run claudecode-nuget/build.ts",
     "dev": "bun run --watch ./src/main.ts",
     "knip": "knip-bun",
     "lint": "eslint --cache",
     "lint:all": "eslint --cache .",
     "prepack": "bun run build",
+    "pack:contained": "bun run build:contained && dotnet pack claudecode-nuget/ClaudeCode.Contained.csproj -c Release -o .artifacts/nuget && dotnet pack copilotcli-nuget/CopilotCli.Contained.csproj -c Release -o .artifacts/nuget",
     "prepare": "simple-git-hooks",
     "release": "bumpp && bun publish --access public",
     "start": "NODE_ENV=production bun run ./src/main.ts",

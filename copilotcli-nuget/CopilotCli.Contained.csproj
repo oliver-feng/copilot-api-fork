@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <AssemblyName>copilot-contained-launcher</AssemblyName>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>copilot-contained</ToolCommandName>
+    <PackageId>CopilotCli.Contained</PackageId>
+    <Version>2.1.0</Version>
+    <Description>Launcher for an officially installed GitHub Copilot CLI. Requires COPILOT_CLI_PATH and runtime COPILOT_GITHUB_TOKEN; does not redistribute Copilot CLI.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\copilot-shim\*.cs" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>
