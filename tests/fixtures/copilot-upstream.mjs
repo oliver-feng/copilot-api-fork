@@ -91,14 +91,21 @@ async function offlineFetch(input, init) {
 
 /** @param {unknown} payload */
 function validPayload(payload) {
+  if (
+    typeof payload !== "object"
+    || payload === null
+    || !("model" in payload)
+    || payload.model !== model
+    || !("messages" in payload)
+    || !Array.isArray(payload.messages)
+  )
+    return false
+  const lastMessage = /** @type {unknown} */ (payload.messages.at(-1))
   return (
-    typeof payload === "object"
-    && payload !== null
-    && "model" in payload
-    && payload.model === model
-    && "messages" in payload
-    && Array.isArray(payload.messages)
-    && payload.messages.length > 0
+    typeof lastMessage === "object"
+    && lastMessage !== null
+    && "role" in lastMessage
+    && lastMessage.role === "user"
   )
 }
 

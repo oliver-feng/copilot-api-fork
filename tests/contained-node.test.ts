@@ -1,5 +1,6 @@
 import { beforeAll, expect, test } from "bun:test"
 import { resolve } from "node:path"
+import { pathToFileURL } from "node:url"
 
 const root = resolve(import.meta.dir, "..")
 const payload = resolve(root, "claudecode-nuget", "payload", "proxy.mjs")
@@ -32,7 +33,9 @@ test("the actual Node bundle authenticates and translates both response modes ag
     [
       "node",
       "--import",
-      resolve(import.meta.dir, "fixtures", "copilot-upstream.mjs"),
+      pathToFileURL(
+        resolve(import.meta.dir, "fixtures", "copilot-upstream.mjs"),
+      ).href,
       payload,
     ],
     {
@@ -62,7 +65,18 @@ test("the actual Node bundle authenticates and translates both response modes ag
           model: "fixture-model",
           max_tokens: 32,
           stream,
-          messages: [{ role: "user", content: "Reply SHIM_OK" }],
+          messages: [
+            { role: "user", content: "Reply SHIM_OK" },
+            {
+              role: "system",
+              content: [
+                {
+                  type: "text",
+                  text: "Preserve this Claude Code system reminder.",
+                },
+              ],
+            },
+          ],
         }),
       })
       expect(response.status).toBe(200)

@@ -9,7 +9,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>claudecode-contained</ToolCommandName>
     <PackageId>ClaudeCode.Contained</PackageId>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     <Description>Claude Code launcher with a private GitHub Copilot API proxy. Requires Node.js 22 and a host-prepared Claude installation; does not redistribute Claude Code.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>

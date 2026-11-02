@@ -61,12 +61,26 @@ function translateAnthropicMessagesToOpenAI(
   system: string | Array<AnthropicTextBlock> | undefined,
 ): Array<Message> {
   const systemMessages = handleSystemPrompt(system)
-
-  const otherMessages = anthropicMessages.flatMap((message) =>
-    message.role === "user" ?
-      handleUserMessage(message)
-    : handleAssistantMessage(message),
-  )
+  const otherMessages: Array<Message> = []
+  for (const message of anthropicMessages) {
+    switch (message.role) {
+      case "system": {
+        systemMessages.push(...handleSystemPrompt(message.content))
+        break
+      }
+      case "user": {
+        otherMessages.push(...handleUserMessage(message))
+        break
+      }
+      case "assistant": {
+        otherMessages.push(...handleAssistantMessage(message))
+        break
+      }
+      default: {
+        throw new Error("Unsupported Anthropic message role")
+      }
+    }
+  }
 
   return [...systemMessages, ...otherMessages]
 }

@@ -63,6 +63,84 @@ function isValidChatCompletionRequest(payload: unknown): boolean {
 }
 
 describe("Anthropic to OpenAI translation logic", () => {
+  test("preserves trailing Claude Code system reminders without creating assistant prefill", () => {
+    const payload: AnthropicMessagesPayload = {
+      model: "claude-sonnet-5",
+      max_tokens: 100,
+      system: "Keep the managed instructions.",
+      messages: [
+        { role: "user", content: "Check current weather." },
+        {
+          role: "system",
+          content: [{ type: "text", text: "Today's date is 2026-11-02." }],
+        },
+      ],
+    }
+
+    expect(translateToOpenAI(payload).messages).toEqual([
+      { role: "system", content: "Keep the managed instructions." },
+      { role: "system", content: "Today's date is 2026-11-02." },
+      { role: "user", content: "Check current weather." },
+    ])
+  })
+
+  test("preserves tool conversations when inline system messages are lifted into the preamble", () => {
+    const payload: AnthropicMessagesPayload = {
+      model: "claude-sonnet-5",
+      max_tokens: 100,
+      messages: [
+        { role: "system", content: "Use approved tools only." },
+        { role: "user", content: "Check weather." },
+        {
+          role: "assistant",
+          content: [
+            {
+              type: "tool_use",
+              id: "weather-call",
+              name: "get_weather",
+              input: { location: "Bellevue" },
+            },
+          ],
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: "weather-call",
+              content: "Sunny",
+            },
+          ],
+        },
+        {
+          role: "system",
+          content: [{ type: "text", text: "Include source links." }],
+        },
+      ],
+    }
+
+    expect(translateToOpenAI(payload).messages).toEqual([
+      { role: "system", content: "Use approved tools only." },
+      { role: "system", content: "Include source links." },
+      { role: "user", content: "Check weather." },
+      {
+        role: "assistant",
+        content: null,
+        tool_calls: [
+          {
+            id: "weather-call",
+            type: "function",
+            function: {
+              name: "get_weather",
+              arguments: '{"location":"Bellevue"}',
+            },
+          },
+        ],
+      },
+      { role: "tool", tool_call_id: "weather-call", content: "Sunny" },
+    ])
+  })
+
   test("should translate minimal Anthropic payload to valid OpenAI payload", () => {
     const anthropicPayload: AnthropicMessagesPayload = {
       model: "gpt-4o",
